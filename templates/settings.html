@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Ayarlar | MiniBank{% endblock %}
+{% block content %}
+<section class="settings-card">
+  <p class="eyebrow">HESAP AYARLARI</p>
+  <h1>Şifre Değiştir</h1>
+  <p>Güvenliğiniz için önce mevcut şifrenizi girin.</p>
+  <form method="post">
+    <label>Mevcut şifre<input type="password" name="current_password" required></label>
+    <label>Yeni şifre<input type="password" name="new_password" minlength="6" required></label>
+    <label>Yeni şifre tekrar<input type="password" name="new_password_repeat" minlength="6" required></label>
+    <button type="submit">Şifreyi güncelle</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | MiniBank{% endblock %}
+
+{% block content %}
+<div class="welcome">
+  <div>
+    <p class="eyebrow">MÜŞTERİ PANELİ</p>
+    <h1>Merhaba, {{ customer['first_name'] }} {{ customer['last_name'] }}</h1>
+  </div>
+  <span class="customer-id">Müşteri Numaranız: {{ customer['customer_id'] }}</span>
+  
+</div>
+
+<div class="dashboard-cards">
+  <section class="card balance-card">
+    <p>Toplam Bakiye</p>
+    <h2>₺ {{ customer['balance'] }}</h2>
+  </section>
+
+  <section class="card info-card">
+    <h2>Müşteri Bilgileri</h2>
+    <div class="info-grid">
+      <div><span>E-posta:</span> <strong>{{ customer['email'] }}</strong></div>
+      <div><span>Telefon:</span> <strong>{{ customer['phone'] }}</strong></div>
+      <div><span>Doğum Tarihi:</span> <strong>{{ customer['birth_date'] }}</strong></div>
+    </div>
+  </section>
+</div>
+{% endblock %}

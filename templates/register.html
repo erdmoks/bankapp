@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Kayıt Ol | MiniBank{% endblock %}
+{% block content %}
+<section class="auth-card wide">
+  <h1>Müşteri Kaydı</h1>
+  <form method="post" class="form-grid">
+    <label>Ad<input type="text" name="first_name" required></label>
+    <label>Soyad<input type="text" name="last_name" required></label>
+    <label>E-posta<input type="email" name="email" required></label>
+    <label>Cep telefonu<input type="tel" name="phone" placeholder="05xx xxx xx xx" required></label>
+    <label>Doğum tarihi<input type="date" name="birth_date" required></label>
+    <label>Şifre<input type="password" name="password" minlength="8" required></label>
+    <label class="full">Şifre tekrar<input type="password" name="password_repeat" minlength="8" required></label>
+    <button class="full" type="submit">Kayıt oluştur</button>
+  </form>
+  <p class="center">Zaten kayıtlı mısınız? <a href="{{ url_for('auth.login') }}">Giriş yapın</a></p>
+</section>
+{% endblock %}

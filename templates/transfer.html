@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Para Transferi | MiniBank{% endblock %}
+
+{% block content %}
+<div class="welcome">
+  <div>
+    <p class="eyebrow">İŞLEMLER</p>
+    <h1>Para Transferi</h1>
+    <p>Diğer MiniBank hesaplarına anında havale yapabilirsiniz.</p>
+  </div>
+</div>
+
+<div class="transfer-grid">
+  <!-- Transfer Formu -->
+  <section class="info-card">
+    <h2>Yeni Transfer</h2>
+    <form action="{{ url_for('transfer.transfer_money') }}" method="POST">
+      <label>
+        Alıcı Müşteri Numarası
+        <input type="text" name="receiver_id" placeholder="Örn: 09876543" required>
+      </label>
+
+      <label>
+        Gönderilecek Tutar (₺)
+        <input type="number" name="amount" min="1" placeholder="0" required>
+      </label>
+
+      <label>
+        Açıklama
+        <input type="text" name="description" placeholder="Örn: Kira ödemesi">
+      </label>
+
+      <button type="submit">Transferi Onayla</button>
+    </form>
+  </section>
+
+  <!-- Hesap Hareketleri -->
+  <section class="history-card">
+    <h2>Hesap Hareketleri</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Tarih</th>
+          <th>Hesap</th>
+          <th>Açıklama</th>
+          <th>Tutar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if transactions %}
+          {% for t in transactions %}
+          <tr>
+            <td>{{ t['created_at'] }}</td>
+            <td>
+              {% if t['sender_customer_id'] == customer['customer_id'] %}
+                Alıcı: <strong>{{ t['receiver_customer_id'] }}</strong>
+              {% else %}
+                Gönderen: <strong>{{ t['sender_customer_id'] }}</strong>
+              {% endif %}
+            </td>
+            <td>{{ t['description'] or '-' }}</td>
+            <td class="{{ 'text-danger' if t['sender_customer_id'] == customer['customer_id'] else 'text-success' }}">
+              {{ '-' if t['sender_customer_id'] == customer['customer_id'] else '+' }}₺{{ t['amount'] }}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="4" class="text-center" style="padding: 24px;">Henüz bir hesap hareketi bulunmuyor.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </section>
+</div>
+{% endblock %}
