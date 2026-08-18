@@ -20,5 +20,3 @@ python app.py
 ```
 
 Tarayıcıdan `http://127.0.0.1:5000` adresine gidin. Uygulama ilk açılışta aynı klasörde `banking.db` dosyasını oluşturur.
-
-> Gerçek projede `SECRET_KEY` ortam değişkeni olarak tanımlanmalı; demo uygulamada geliştirme için varsayılan bir değer kullanılmıştır.
