@@ -11,10 +11,10 @@
 </div>
 
 <div class="transfer-grid">
-  <!-- Transfer Formu -->
   <section class="info-card">
     <h2>Yeni Transfer</h2>
     <form action="{{ url_for('transfer.transfer_money') }}" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <label>
         Alıcı Müşteri Numarası
         <input type="text" name="receiver_id" placeholder="Örn: 09876543" required>
@@ -34,7 +34,7 @@
     </form>
   </section>
 
-  <!-- Hesap Hareketleri -->
+
   <section class="history-card">
     <h2>Hesap Hareketleri</h2>
     <table class="data-table">

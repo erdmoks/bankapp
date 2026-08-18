@@ -5,6 +5,7 @@
   <h1>Hoş geldiniz</h1>
   <p>Hesabınıza güvenle giriş yapın.</p>
   <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label>E-posta<input type="email" name="email" required autofocus></label>
     <label>Şifre<input type="password" name="password" required></label>
     <button type="submit">Giriş yap</button>

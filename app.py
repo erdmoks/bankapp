@@ -1,4 +1,7 @@
+import os
 from flask import Flask
+from dotenv import load_dotenv
+from flask_wtf.csrf import CSRFProtect
 
 from database import init_db, close_db
 from controllers.auth_controller import auth_bp
@@ -6,12 +9,16 @@ from controllers.customer_controller import customer_bp
 from controllers.settings_controller import settings_bp
 from controllers.transfer_controller import transfer_bp
 
+load_dotenv() 
+
+csrf = CSRFProtect()
 
 def create_app():
 
     app = Flask(__name__)
+    csrf.init_app(app)
 
-    app.config["SECRET_KEY"] = "gelistirme-icin-degistir"
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
     app.teardown_appcontext(close_db)
 

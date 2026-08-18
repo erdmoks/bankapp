@@ -6,6 +6,7 @@
   <h1>Şifre Değiştir</h1>
   <p>Güvenliğiniz için önce mevcut şifrenizi girin.</p>
   <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <label>Mevcut şifre<input type="password" name="current_password" required></label>
     <label>Yeni şifre<input type="password" name="new_password" minlength="6" required></label>
     <label>Yeni şifre tekrar<input type="password" name="new_password_repeat" minlength="6" required></label>

@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import wraps
 import html
 import random
 
@@ -7,8 +8,7 @@ import sqlite3
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from models.customer import create_customer, get_customer_by_email
-
+from models.customer import create_customer, get_customer_by_email, get_customer_by_id
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -42,6 +42,7 @@ def register():
             flash("Geçerli bir e-posta adresi yazın.", "error")
 
         elif len(password) < 8:
+            # Regex kontrolü eklenecek!
             flash("Şifre en az 8 karakter olmalıdır.", "error")
 
         elif password != password_repeat:
@@ -70,7 +71,7 @@ def register():
 
                 except sqlite3.IntegrityError as e:
                     if "customer_id" in str(e):
-                        continue  # ID çakıştı, yeni ID dene
+                        continue  
                     else:
                         flash("Bu e-posta adresi zaten kayıtlı.", "error")
                         break
@@ -114,9 +115,12 @@ def login():
                 "success"
             )
             return redirect(url_for("customer.dashboard"))
-
+        if customer and not check_password_hash(
+            customer["password_hash"],
+            password
+        ):
+            flash("Geçersiz şifre.", "error")
     return render_template("login.html")
-    
 
 
 @auth_bp.route("/logout")
@@ -130,3 +134,23 @@ def logout():
     )
 
     return redirect(url_for("auth.login"))
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        customer_id = session.get("customer_id")
+
+        if not customer_id:
+            flash("test.", "error")
+            return redirect(url_for("auth.login"))
+
+        customer = get_customer_by_id(customer_id)
+
+        if not customer:
+            session.clear()
+            flash("Oturumunuz geçersiz. Lütfen tekrar giriş yapın.", "error")
+            return redirect(url_for("auth.login"))
+
+        return f(customer, *args, **kwargs)
+
+    return decorated_function

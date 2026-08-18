@@ -3,6 +3,7 @@ import html
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from controllers.auth_controller import login_required
 from models.customer import (
     get_customer_by_id,
     update_customer_password
@@ -11,17 +12,13 @@ from models.customer import (
 settings_bp = Blueprint("settings", __name__)
 
 @settings_bp.route("/settings", methods=["GET", "POST"])
-def change_password():
+@login_required
+def change_password(customer):
     customer_id = session.get("customer_id")
 
-    if not customer_id:
+    '''if not customer_id:
         return redirect(url_for("auth.login"))
-
-    customer = get_customer_by_id(customer_id)
-
-    if customer is None:
-        session.clear()
-        return redirect(url_for("auth.login"))
+    '''
 
     if request.method == "POST":
 

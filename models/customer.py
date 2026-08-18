@@ -74,17 +74,6 @@ def create_customer(
 
 def make_transfer(sender_customer_id, receiver_customer_id, amount, description):
     db = get_db()
-
-    receiver = get_customer_by_id(receiver_customer_id)
-    if not receiver:
-        raise ValueError("Alıcı müşteri bulunamadı.")
-
-    sender = get_customer_by_id(sender_customer_id)
-    if not sender:
-        raise ValueError("Gönderen müşteri bulunamadı.")
-    if sender["balance"] < amount:
-        raise ValueError("Yetersiz bakiye.")
-
     db.execute(
         "UPDATE customer SET balance = balance - ? WHERE customer_id = ?",
         (amount, sender_customer_id)
