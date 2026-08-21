@@ -9,6 +9,7 @@ from flask import Blueprint, flash, redirect, render_template, request, session,
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from models.customer import create_customer, get_customer_by_email, get_customer_by_id
+from models.session import increment_and_get_session_version, increment_session_version
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -22,11 +23,11 @@ def register():
 
         first_name = html.escape(request.form.get("first_name", "").strip())
         last_name = html.escape(request.form.get("last_name", "").strip())
-        email = html.escape(request.form.get("email", "").strip().lower())
+        email = request.form.get("email", "").strip().lower()
         phone = html.escape(request.form.get("phone", "").strip())
         birth_date = html.escape(request.form.get("birth_date", ""))
-        password = html.escape(request.form.get("password", ""))
-        password_repeat = html.escape(request.form.get("password_repeat", ""))
+        password = request.form.get("password", "")
+        password_repeat = request.form.get("password_repeat", "")
 
         if not all([
             first_name,
@@ -99,7 +100,7 @@ def login():
     if request.method == "POST":
 
         email = html.escape(request.form.get("email", "").strip().lower())
-        password = html.escape(request.form.get("password", ""))
+        password = request.form.get("password", "")
 
         customer = get_customer_by_email(email)
 
@@ -107,8 +108,10 @@ def login():
             customer["password_hash"],
             password
         ):
+            new_session_version = increment_and_get_session_version(customer["customer_id"])
             session.clear()
             session["customer_id"] = customer["customer_id"]
+            session["session_version"] = new_session_version
 
             flash(
                 "Hoş geldiniz, {}!".format(customer["first_name"]),
@@ -120,12 +123,13 @@ def login():
             password
         ):
             flash("Geçersiz şifre.", "error")
+            return render_template("login.html"), 401
     return render_template("login.html")
 
 
 @auth_bp.route("/logout")
 def logout():
-
+    increment_session_version(session.get("customer_id"))
     session.clear()
 
     flash(
@@ -139,9 +143,13 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         customer_id = session.get("customer_id")
+        session_version = session.get("session_version")
 
-        if not customer_id:
-            flash("test.", "error")
+
+        if not customer_id or session_version is None:
+            session.clear()
+
+            flash("Lütfen Giriş Yapınız !", "error")
             return redirect(url_for("auth.login"))
 
         customer = get_customer_by_id(customer_id)
@@ -151,6 +159,11 @@ def login_required(f):
             flash("Oturumunuz geçersiz. Lütfen tekrar giriş yapın.", "error")
             return redirect(url_for("auth.login"))
 
+        if customer["session_version"] != session_version:
+            session.clear()
+            flash("Oturumunuz geçersiz. Lütfen tekrar giriş yapın.", "error")
+            return redirect(url_for("auth.login"))
+        
         return f(customer, *args, **kwargs)
 
     return decorated_function

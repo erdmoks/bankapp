@@ -16,10 +16,6 @@ settings_bp = Blueprint("settings", __name__)
 def change_password(customer):
     customer_id = session.get("customer_id")
 
-    '''if not customer_id:
-        return redirect(url_for("auth.login"))
-    '''
-
     if request.method == "POST":
 
         current_password = html.escape(request.form.get(

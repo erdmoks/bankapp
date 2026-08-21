@@ -8,7 +8,7 @@ transfer_bp = Blueprint("transfer", __name__)
 
 @transfer_bp.route("/transfer", methods=["POST"])
 @login_required
-def transfer_money():
+def transfer_money(customer):
     sender_id = html.escape(session.get("customer_id").strip())
     receiver_id = html.escape(request.form.get("receiver_id").strip())
     amount_raw = html.escape(request.form.get("amount").strip())
@@ -29,11 +29,13 @@ def transfer_money():
     
     receiver = get_customer_by_id(receiver_id)
     if not receiver:
-        raise ValueError("Alıcı müşteri bulunamadı.")
-    
+        flash("Alıcı müşteri bulunamadı.", "error")
+        return redirect(url_for("transfer.transfer_page"))
+
     sender = get_customer_by_id(sender_id)
     if sender["balance"] < amount:
-        raise ValueError("Yetersiz bakiye.")
+        flash("Yetersiz bakiye.", "error")
+        return redirect(url_for("transfer.transfer_page"))
 
     try: 
         make_transfer(sender_id, receiver_id, amount, description)
@@ -45,11 +47,6 @@ def transfer_money():
 @transfer_bp.route("/transfer", methods=["GET"])
 @login_required
 def transfer_page(customer):
-    '''customer_id = session.get("customer_id")
-    if not customer_id:
-        flash("Devam etmek için giriş yapın.", "error")
-        return redirect(url_for("auth.login"))
-    '''
     db = get_db()
 
     transactions = db.execute(

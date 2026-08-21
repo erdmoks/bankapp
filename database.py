@@ -38,7 +38,8 @@ def init_db():
             birth_date TEXT NOT NULL,
             password_hash TEXT NOT NULL,
             created_at TEXT NOT NULL,
-            balance INTEGER NOT NULL DEFAULT 1000
+            balance INTEGER NOT NULL DEFAULT 1000,
+            session_version INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS transactions (
