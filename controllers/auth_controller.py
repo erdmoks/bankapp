@@ -54,7 +54,7 @@ def register():
             registered = False
 
             for attempt in range(max_retries):
-                customer_id = str(random.randint(10, 99))
+                customer_id = str(random.randint(10000, 99999))
 
                 try:
                     create_customer(

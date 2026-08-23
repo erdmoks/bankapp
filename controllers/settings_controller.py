@@ -18,20 +18,20 @@ def change_password(customer):
 
     if request.method == "POST":
 
-        current_password = html.escape(request.form.get(
+        current_password = request.form.get(
             "current_password",
             ""
-        ))
+        )
 
-        new_password = html.escape(request.form.get(
+        new_password = request.form.get(
             "new_password",
             ""
-        ))
+        )
 
-        new_password_repeat = html.escape(request.form.get(
+        new_password_repeat = request.form.get(
             "new_password_repeat",
             ""
-        ))
+        )
 
         if not check_password_hash(
             customer["password_hash"],
