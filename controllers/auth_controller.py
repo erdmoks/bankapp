@@ -99,7 +99,7 @@ def login():
 
     if request.method == "POST":
 
-        email = html.escape(request.form.get("email", "").strip().lower())
+        email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
         customer = get_customer_by_email(email)
@@ -108,7 +108,10 @@ def login():
             customer["password_hash"],
             password
         ):
-            new_session_version = increment_and_get_session_version(customer["customer_id"])
+            new_session_version = increment_and_get_session_version(
+                customer["customer_id"]
+            )
+
             session.clear()
             session["customer_id"] = customer["customer_id"]
             session["session_version"] = new_session_version
@@ -117,15 +120,13 @@ def login():
                 "Hoş geldiniz, {}!".format(customer["first_name"]),
                 "success"
             )
-            return redirect(url_for("customer.dashboard"))
-        if customer and not check_password_hash(
-            customer["password_hash"],
-            password
-        ):
-            flash("Geçersiz şifre.", "error")
-            return render_template("login.html"), 401
-    return render_template("login.html")
 
+            return redirect(url_for("customer.dashboard"))
+
+        flash("Giriş bilgileriniz hatalı!", "error")
+        return render_template("login.html"), 401
+
+    return render_template("login.html")
 
 @auth_bp.route("/logout")
 def logout():
