@@ -2,8 +2,10 @@ from datetime import datetime
 from functools import wraps
 import html
 import random
-
+import time
 import sqlite3
+
+login_attempts = {}
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -102,12 +104,19 @@ def login():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
+        attempt_data = login_attempts.get(email, {"count": 0, "blocked_until": 0}),
+
+        if time.time() < attempt_data["blocked_until"]:
+            flash("Çok fazla başarısız giriş denemesi nedeniyle hesabınız geçici olarak engellenmiştir.""Lütfen 30 saniye sonra tekrar deneyiniz.", "error")
+            return render_template("login.html"), 429
+
         customer = get_customer_by_email(email)
 
         if customer and check_password_hash(
             customer["password_hash"],
             password
         ):
+            login_attempts.pop(email, None)  # Başarılı girişte deneme sayısını sıfırla
             new_session_version = increment_and_get_session_version(
                 customer["customer_id"]
             )
@@ -122,6 +131,13 @@ def login():
             )
 
             return redirect(url_for("customer.dashboard"))
+
+        attempt_data["count"] += 1
+
+        if attempt_data["count"] >= 5:
+            attempt_data["blocked_until"] = time.time() + 30  # 30 saniye engelle
+            attempt_data["count"] = 0  # Deneme sayısını sıfırla
+            flash("Çok fazla başarısız giriş denemesi nedeniyle hesabınız geçici olarak engellenmiştir.""Lütfen 30 saniye sonra tekrar deneyiniz.", "error")
 
         flash("Giriş bilgileriniz hatalı!", "error")
         return render_template("login.html"), 401
