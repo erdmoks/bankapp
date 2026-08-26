@@ -9,6 +9,8 @@ from controllers.customer_controller import customer_bp
 from controllers.settings_controller import settings_bp
 from controllers.transfer_controller import transfer_bp
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 load_dotenv() 
 
 csrf = CSRFProtect()
@@ -17,6 +19,10 @@ def create_app():
 
     app = Flask(__name__)
     csrf.init_app(app)
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app,
+        x_for=1
+    )
 
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
@@ -35,6 +41,9 @@ def create_app():
 
 app = create_app()
 
-
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=True
+    )
