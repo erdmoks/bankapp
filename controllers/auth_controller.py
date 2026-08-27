@@ -4,6 +4,7 @@ import html
 import random
 import time
 import sqlite3
+import re
 
 
 
@@ -47,8 +48,16 @@ def register():
             flash("Geçerli bir e-posta adresi yazın.", "error")
 
         elif len(password) < 8:
-            # Regex kontrolü eklenecek!
             flash("Şifre en az 8 karakter olmalıdır.", "error")
+
+        elif not re.search(r"[A-Z]", password):
+            flash("Şifre en az bir büyük harf içermelidir.", "error")
+
+        elif not re.search(r"[a-z]", password):
+            flash("Şifre en az bir küçük harf içermelidir.", "error")
+
+        elif not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=]", password):
+            flash("Şifre en az bir özel karakter içermelidir.", "error")
 
         elif password != password_repeat:
             flash("Şifreler uyuşmuyor.", "error")
@@ -97,11 +106,9 @@ def register():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    
-
     if session.get("customer_id"):
         return redirect(url_for("customer.dashboard"))
-
+    
     if request.method == "POST":
 
         ip_address = request.remote_addr
